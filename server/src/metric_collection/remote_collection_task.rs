@@ -399,7 +399,6 @@ pub(super) mod tests {
         connection::{ClientFactory, PveClient},
         metric_collection::rrd_task::RrdStoreResult,
         pbs_client::PbsClient,
-        test_support::temp::NamedTempFile,
     };
 
     use super::*;
@@ -574,7 +573,7 @@ pub(super) mod tests {
 
         let config = make_remote_config();
 
-        let state_file = NamedTempFile::new(get_create_options()).unwrap();
+        let state_file = tempfile::NamedTempFile::new().unwrap();
         let state = MetricCollectionState::new(state_file.path().into(), get_create_options());
 
         let (_control_tx, control_rx) = tokio::sync::mpsc::channel(10);
@@ -627,7 +626,8 @@ pub(super) mod tests {
 
         let config = make_remote_config();
 
-        let state_file = NamedTempFile::new(get_create_options()).unwrap();
+        let state_file = tempfile::NamedTempFile::new().unwrap();
+
         let mut state = MetricCollectionState::new(state_file.path().into(), get_create_options());
 
         let now = proxmox_time::epoch_i64();

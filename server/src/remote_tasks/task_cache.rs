@@ -1587,8 +1587,6 @@ impl Iterator for JournalIterator {
 mod tests {
     use std::io::Cursor;
 
-    use crate::test_support::temp::NamedTempDir;
-
     use super::*;
 
     #[test]
@@ -1683,8 +1681,8 @@ mod tests {
 
     const DEFAULT_MAX_SIZE: u64 = 10000;
 
-    fn make_cache() -> Result<(NamedTempDir, TaskCache), Error> {
-        let tmp_dir = NamedTempDir::new()?;
+    fn make_cache() -> Result<(tempfile::TempDir, TaskCache), Error> {
+        let tmp_dir = tempfile::tempdir()?;
         let cache = TaskCache::new(
             tmp_dir.path(),
             CreateOptions::new(),

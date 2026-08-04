@@ -93,13 +93,12 @@ impl MetricCollectionState {
 #[cfg(test)]
 mod tests {
     use crate::metric_collection::remote_collection_task::tests::get_create_options;
-    use crate::test_support::temp::NamedTempFile;
 
     use super::*;
 
     #[test]
     fn save_and_load() -> Result<(), Error> {
-        let file = NamedTempFile::new(get_create_options())?;
+        let file = tempfile::NamedTempFile::new()?;
         let options = get_create_options();
         let mut state = MetricCollectionState::new(file.path().into(), options);
 
@@ -123,7 +122,7 @@ mod tests {
 
     #[test]
     fn test_retain() -> Result<(), Error> {
-        let file = NamedTempFile::new(get_create_options())?;
+        let file = tempfile::NamedTempFile::new()?;
         let options = get_create_options();
         let mut state = MetricCollectionState::new(file.path().into(), options);
 

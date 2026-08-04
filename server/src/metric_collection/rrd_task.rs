@@ -428,17 +428,14 @@ mod tests {
     use proxmox_rrd_api_types::{RrdMode, RrdTimeframe};
     use pve_api_types::{ClusterMetrics, ClusterMetricsData};
 
-    use crate::{
-        metric_collection::remote_collection_task::tests::get_create_options,
-        test_support::temp::NamedTempDir,
-    };
+    use crate::metric_collection::remote_collection_task::tests::get_create_options;
 
     use super::*;
 
     #[tokio::test]
     async fn test_rrd_task_persists_data() -> Result<(), Error> {
         // Arrange
-        let dir = NamedTempDir::new()?;
+        let dir = tempfile::tempdir()?;
         let options = get_create_options().perm(nix::sys::stat::Mode::from_bits_truncate(0o700));
         let cache = Arc::new(RrdCache::new(dir.path(), options, options)?);
 
@@ -526,7 +523,8 @@ mod tests {
 
     #[test]
     fn store_datapoints_drops_future_dated() -> Result<(), Error> {
-        let dir = NamedTempDir::new()?;
+        let dir = tempfile::tempdir()?;
+
         let options = get_create_options().perm(nix::sys::stat::Mode::from_bits_truncate(0o700));
         let cache = RrdCache::new(dir.path(), options, options)?;
 

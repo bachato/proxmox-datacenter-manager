@@ -1,11 +1,11 @@
 use anyhow::Error;
 use proxmox_rrd_api_types::{RrdMode, RrdTimeframe};
 
-use proxmox_router::{Router, http_bail};
+use proxmox_router::{Permission, Router, http_bail};
 use proxmox_schema::api;
 
-use pdm_api_types::NODE_SCHEMA;
 use pdm_api_types::rrddata::PdmNodeDatapoint;
+use pdm_api_types::{NODE_SCHEMA, PRIV_SYS_AUDIT};
 
 use crate::api::rrd_common::{self, DataPoint};
 
@@ -97,7 +97,11 @@ impl DataPoint for PdmNodeDatapoint {
         items: {
             type: PdmNodeDatapoint,
         }
-    }
+    },
+    access: {
+        permission: &Permission::Privilege(&["system", "status"], PRIV_SYS_AUDIT, false),
+        description: "Requires `Sys.Audit` privilege on `/system/status`."
+    },
 )]
 /// Read RRD data for this PDM node.
 fn get_node_rrddata(

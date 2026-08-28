@@ -504,11 +504,17 @@ async fn poll_single_tracked_task(remote: Remote, task: RemoteUpid) -> (RemoteUp
 fn map_pve_task(task: pve_api_types::ListTasksResponse, remote: String) -> TaskCacheItem {
     let remote_upid = RemoteUpid::new(remote, RemoteType::Pve, task.upid);
 
+    // This is to align the PVE tasks to PBS and PDM tasks
+    let status = match task.status {
+        Some(ref s) if s == "RUNNING" => None,
+        other => other,
+    };
+
     TaskCacheItem {
         upid: remote_upid,
         starttime: task.starttime,
         endtime: task.endtime,
-        status: task.status,
+        status: status,
     }
 }
 

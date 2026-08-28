@@ -155,6 +155,7 @@ pub fn list_tasks(
                     continue;
                 }
             }
+            (None, _) if errors => continue,
             (None, Some(_)) => continue,
             _ => {}
         }

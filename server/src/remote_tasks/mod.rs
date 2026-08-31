@@ -148,6 +148,7 @@ pub async fn get_tasks(
                         }
                     }
                     (None, Some(_)) => return false,
+                    (None, _) if filters.errors => return false,
                     _ => {}
                 }
 

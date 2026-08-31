@@ -1,8 +1,10 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use anyhow::Error;
+use anyhow::{Context, Error};
 
+use proxmox_access_control::CachedUserInfo;
+use proxmox_auth_api::types::Authid;
 use proxmox_router::{Permission, Router, RpcEnvironment, SubdirMap, list_subdirs_api_method};
 use proxmox_schema::api;
 use proxmox_sortable_macro::sortable;
@@ -242,16 +244,26 @@ async fn fetch_node_firewall_status(
         items: { type: RemoteFirewallStatus },
     },
     access: {
-        permission: &Permission::Privilege(&["resource", "{remote}"], PRIV_RESOURCE_AUDIT, false),
+        permission: &Permission::Anybody,
+        description: "A user needs `Resource.Audit` privileges on /resource/{remote}."
     },
 )]
 /// Get firewall status of all PVE remotes.
 pub async fn pve_firewall_status(
-    _rpcenv: &mut dyn RpcEnvironment,
+    rpcenv: &mut dyn RpcEnvironment,
 ) -> Result<Vec<RemoteFirewallStatus>, Error> {
+    let auth_id: Authid = rpcenv
+        .get_auth_id()
+        .context("no authid available")?
+        .parse()?;
+    let user_info = CachedUserInfo::new()?;
+
     let pve_remotes: Vec<Remote> = crate::api::remotes::RemoteIterator::new()?
         .remote_type(pdm_api_types::remotes::RemoteType::Pve)
         .into_remotes()
+        .filter(|remote| {
+            user_info.lookup_privs(&auth_id, &["resource", &remote.id]) & PRIV_RESOURCE_AUDIT != 0
+        })
         .collect();
 
     if pve_remotes.is_empty() {
